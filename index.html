@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filovent — Avitaillement</title>
+<link href="https://fonts.googleapis.com/css2?family=Canela:wght@300;400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+/* ─── RESET & TOKENS ─────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  /* Filovent palette — tiré du screenshot */
+  --fi-dark:  #1a1a2e;   /* presque noir bleu */
+  --fi-navy:  #162447;   /* bleu marine profond */
+  --fi-red:   #e63946;   /* rouge Filovent */
+  --fi-sand:  #f5f0e8;   /* fond sable clair */
+  --fi-ocean: #1d6a96;   /* bleu océan */
+  --fi-teal:  #0e9f6e;
+  --fi-amber: #d97706;
+  --fi-bd:    #e2ddd4;   /* bordure sable */
+  --fi-text:  #1a1a2e;
+  --fi-text2: #4a4a6a;
+  --fi-text3: #8a8aaa;
+  --white:    #ffffff;
+  --shadow:   0 1px 3px rgba(26,26,46,.08), 0 4px 16px rgba(26,26,46,.06);
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--fi-sand);color:var(--fi-text);min-height:100vh;font-size:14px}
+
+/* ─── HEADER ─────────────────────────────────────────── */
+header{
+  background:var(--fi-dark);
+  border-bottom:3px solid var(--fi-red);
+  position:sticky;top:0;z-index:200;
+}
+.header-inner{
+  max-width:1400px;margin:0 auto;
+  padding:0 2rem;
+  display:flex;align-items:center;justify-content:space-between;
+  height:64px;
+}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-mark{
+  width:36px;height:36px;
+  background:var(--fi-red);
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.logo-mark svg{width:18px;height:18px;fill:white}
+.logo-text{color:white}
+.logo-text strong{font-family:'DM Sans',sans-serif;font-size:17px;font-weight:500;letter-spacing:.5px;display:block;line-height:1.1}
+.logo-text small{font-size:10px;color:rgba(255,255,255,.5);letter-spacing:2px;text-transform:uppercase}
+
+/* NAV TABS — gros et lisibles */
+.nav-tabs{display:flex;gap:0;height:64px;align-items:stretch}
+.nav-tab{
+  height:64px;
+  padding:0 22px;
+  display:flex;align-items:center;
+  font-size:14px;font-weight:500;
+  color:rgba(255,255,255,.55);
+  cursor:pointer;
+  border-bottom:3px solid transparent;
+  margin-bottom:-3px;
+  transition:all .18s;
+  white-space:nowrap;
+  letter-spacing:.2px;
+  user-select:none;
+}
+.nav-tab:hover{color:rgba(255,255,255,.9);background:rgba(255,255,255,.05)}
+.nav-tab.active{color:white;border-bottom-color:var(--fi-red)}
+.nav-tab .tab-icon{margin-right:7px;font-size:15px}
+
+.header-right{display:flex;align-items:center;gap:10px}
+.sync-time{font-size:11px;color:rgba(255,255,255,.4);display:flex;align-items:center;gap:5px}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--fi-teal);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.btn-sync{
+  background:rgba(255,255,255,.1);
+  color:rgba(255,255,255,.8);
+  border:1px solid rgba(255,255,255,.15);
+  font-size:12px;padding:5px 14px;border-radius:6px;
+  cursor:pointer;font-family:'DM Sans',sans-serif;
+  transition:all .15s;
+}
+.btn-sync:hover{background:rgba(255,255,255,.18);color:white}
+.badge-live{
+  background:#064e3b;color:#6ee7b7;
+  font-size:10px;padding:3px 9px;border-radius:20px;font-weight:500;
+  letter-spacing:.5px;
+}
+
+/* ─── MAIN ───────────────────────────────────────────── */
+main{max-width:1400px;margin:0 auto;padding:2rem}
+.page{display:none}.page.active{display:block}
+
+/* ─── CARDS ──────────────────────────────────────────── */
+.card{
+  background:var(--white);
+  border:1px solid var(--fi-bd);
+  border-radius:12px;
+  padding:20px;
+  box-shadow:var(--shadow);
+}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-hd h2{font-size:15px;font-weight:500;color:var(--fi-text)}
+.card-hd span{font-size:11px;color:var(--fi-text3)}
+
+/* ─── KPI ROW ────────────────────────────────────────── */
+.kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:1.5rem}
+.kpi{
+  background:var(--white);border:1px solid var(--fi-bd);
+  border-radius:12px;padding:14px 16px;
+  position:relative;overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.kpi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.kpi.k-blue::before{background:var(--fi-ocean)}
+.kpi.k-green::before{background:var(--fi-teal)}
+.kpi.k-red::before{background:var(--fi-red)}
+.kpi.k-amber::before{background:var(--fi-amber)}
+.kpi.k-purple::before{background:#7c3aed}
+.kpi.k-gray::before{background:var(--fi-text3)}
+.kpi-label{font-size:10px;color:var(--fi-text3);text-transform:uppercase;letter-spacing:.8px;font-weight:500;margin-bottom:5px}
+.kpi-val{font-size:26px;font-weight:500;color:var(--fi-text);line-height:1}
+.kpi-sub{font-size:10px;color:var(--fi-text3);margin-top:4px}
+
+/* ─── SOURCE TABS ────────────────────────────────────── */
+.src-tabs{display:flex;background:var(--white);border:1px solid var(--fi-bd);border-radius:10px;overflow:hidden;margin-bottom:16px;box-shadow:var(--shadow)}
+.stab{padding:10px 20px;font-size:13px;font-weight:500;color:var(--fi-text3);cursor:pointer;border-right:1px solid var(--fi-bd);transition:all .15s;display:flex;align-items:center;gap:7px}
+.stab:last-child{border-right:none}
+.stab:hover{background:var(--fi-sand)}
+.stab.active{background:var(--fi-dark);color:white}
+.stab .cnt{font-size:10px;padding:1px 6px;border-radius:8px;font-weight:600}
+.stab.active .cnt{background:rgba(255,255,255,.2);color:white}
+.stab:not(.active) .cnt{background:var(--fi-sand);color:var(--fi-text3)}
+
+/* ─── FILTER BAR ─────────────────────────────────────── */
+.filter-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.fbtn{
+  padding:5px 13px;border-radius:20px;
+  border:1px solid var(--fi-bd);
+  background:var(--white);font-size:12px;font-weight:500;
+  cursor:pointer;color:var(--fi-text3);transition:all .15s;
+}
+.fbtn.active{background:var(--fi-dark);color:white;border-color:var(--fi-dark)}
+.fbtn:hover:not(.active){background:var(--fi-sand)}
+.srch{
+  padding:7px 14px;border-radius:8px;
+  border:1.5px solid var(--fi-bd);
+  font-size:13px;width:260px;outline:none;
+  font-family:'DM Sans',sans-serif;
+  background:var(--white);transition:border-color .2s;
+}
+.srch:focus{border-color:var(--fi-ocean)}
+
+/* ─── TABLE ──────────────────────────────────────────── */
+.scrollable{overflow-x:auto}
+.scrollable::-webkit-scrollbar{height:4px}
+.scrollable::-webkit-scrollbar-thumb{background:var(--fi-bd);border-radius:2px}
+.dt{width:100%;border-collapse:collapse;font-size:12px}
+.dt th{
+  font-size:10px;color:var(--fi-text3);
+  text-transform:uppercase;letter-spacing:.6px;
+  padding:8px 10px;text-align:left;
+  border-bottom:2px solid var(--fi-bd);
+  font-weight:500;white-space:nowrap;background:#faf9f6;
+}
+.dt td{padding:8px 10px;border-bottom:1px solid var(--fi-bd);vertical-align:top;line-height:1.4}
+.dt tr:last-child td{border-bottom:none}
+.dt tr:hover td{background:#faf9f6}
+
+/* ─── PILLS ──────────────────────────────────────────── */
+.pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;white-space:nowrap}
+.p-yes{background:#d1fae5;color:#064e3b}
+.p-no{background:#fee2e2;color:#7f1d1d}
+.p-fr{background:#ede9fe;color:#4c1d95}
+.p-en{background:#dbeafe;color:#1e3a8a}
+.p-ok{background:#d1fae5;color:#064e3b}
+.p-partial{background:#fef3c7;color:#78350f}
+.p-nok{background:#fee2e2;color:#7f1d1d}
+/* country pills */
+.c-gr{background:#dbeafe;color:#1e3a8a}
+.c-hr{background:#fef3c7;color:#78350f}
+.c-it{background:#fce7f3;color:#831843}
+.c-es{background:#fef9c3;color:#713f12}
+.c-fr{background:#ede9fe;color:#4c1d95}
+.c-ant{background:#d1fae5;color:#064e3b}
+.c-tr{background:#fee2e2;color:#7f1d1d}
+.c-pf{background:#fef3c7;color:#78350f} /* paradise foods */
+.c-other{background:#f3f4f6;color:#374151}
+
+/* ─── LOADING / ERROR ────────────────────────────────── */
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:var(--fi-text3)}
+.spinner{width:28px;height:28px;border:3px solid var(--fi-bd);border-top-color:var(--fi-ocean);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.err-box{background:#fee2e2;border:1px solid #fca5a5;border-radius:10px;padding:14px;color:#7f1d1d;font-size:12px;margin-bottom:14px;display:none}
+
+/* ─── RECHERCHE AVITAILLEMENT ────────────────────────── */
+.search-hero{
+  background:var(--fi-dark);
+  border-radius:16px;
+  padding:32px;
+  margin-bottom:24px;
+  box-shadow:var(--shadow);
+}
+.search-hero h2{
+  font-size:22px;font-weight:400;color:white;
+  margin-bottom:6px;letter-spacing:.3px;
+}
+.search-hero p{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:20px}
+.search-hero-input{
+  width:100%;
+  padding:14px 20px;
+  border-radius:10px;
+  border:2px solid rgba(255,255,255,.15);
+  font-size:15px;outline:none;
+  font-family:'DM Sans',sans-serif;
+  background:rgba(255,255,255,.08);
+  color:white;
+  transition:border-color .2s;
+}
+.search-hero-input::placeholder{color:rgba(255,255,255,.35)}
+.search-hero-input:focus{border-color:var(--fi-red);background:rgba(255,255,255,.12)}
+
+/* Autocomplete dropdown */
+.autocomplete-wrap{position:relative}
+.ac-dropdown{
+  position:absolute;top:calc(100% + 6px);left:0;right:0;
+  background:white;border:1px solid var(--fi-bd);
+  border-radius:10px;overflow:hidden;
+  box-shadow:0 8px 32px rgba(26,26,46,.15);
+  z-index:50;display:none;max-height:300px;overflow-y:auto;
+}
+.ac-item{
+  padding:11px 16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--fi-bd);transition:background .1s;
+}
+.ac-item:last-child{border-bottom:none}
+.ac-item:hover{background:var(--fi-sand)}
+.ac-name{font-size:13px;font-weight:500;color:var(--fi-text)}
+.ac-meta{font-size:11px;color:var(--fi-text3);margin-top:1px}
+
+/* Result card */
+.result-wrap{margin-top:0}
+.result-card{
+  background:white;border:1px solid var(--fi-bd);
+  border-radius:14px;overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.result-hd{
+  padding:16px 20px;
+  background:var(--fi-navy);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.result-hd h3{font-size:18px;font-weight:500;color:white;letter-spacing:.2px}
+.result-row{padding:14px 20px;border-bottom:1px solid var(--fi-bd);display:flex;gap:20px}
+.result-row:last-child{border-bottom:none}
+.result-lbl{
+  font-size:10px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.8px;color:var(--fi-text3);
+  min-width:120px;padding-top:1px;flex-shrink:0;
+}
+.result-val{font-size:13px;color:var(--fi-text);line-height:1.6;flex:1}
+.result-val a{color:var(--fi-ocean);text-decoration:none;font-weight:500}
+.result-val a:hover{text-decoration:underline}
+.mail-block{
+  background:var(--fi-sand);border-radius:8px;
+  padding:14px 16px;margin-top:8px;
+  border:1px solid var(--fi-bd);
+}
+.mail-block pre{
+  font-family:'DM Sans',sans-serif;font-size:12px;
+  color:var(--fi-text2);white-space:pre-wrap;line-height:1.7;
+}
+.btn-copy{
+  display:inline-flex;align-items:center;gap:5px;
+  margin-top:10px;padding:5px 14px;
+  border-radius:6px;border:1px solid var(--fi-bd);
+  background:white;cursor:pointer;
+  font-size:11px;font-weight:500;color:var(--fi-text3);
+  font-family:'DM Sans',sans-serif;transition:all .15s;
+}
+.btn-copy:hover{background:var(--fi-dark);color:white;border-color:var(--fi-dark)}
+.no-result-box{
+  background:white;border-radius:12px;border:1px dashed var(--fi-bd);
+  padding:30px;text-align:center;
+}
+.warn-row{
+  padding:14px 20px;background:#fef3c7;
+  border-bottom:1px solid #fde68a;
+}
+
+/* ─── ALL BASES TABLE ────────────────────────────────── */
+.bases-table-wrap{
+  background:white;border:1px solid var(--fi-bd);
+  border-radius:12px;overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.bases-table-hd{
+  padding:14px 20px;
+  border-bottom:1px solid var(--fi-bd);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.bases-table-hd span:first-child{font-size:14px;font-weight:500;color:var(--fi-text)}
+.bases-table-hd span:last-child{font-size:11px;color:var(--fi-text3)}
+
+/* ─── TODO ───────────────────────────────────────────── */
+.todo-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.todo-card{background:white;border:1px solid var(--fi-bd);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+.todo-card-hd{padding:14px 18px;border-bottom:1px solid var(--fi-bd);display:flex;align-items:center;justify-content:space-between}
+.todo-card-hd h3{font-size:13px;font-weight:500;color:var(--fi-text)}
+.prio-pill{font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px}
+.pp1{background:#fee2e2;color:#7f1d1d}
+.pp2{background:#fef3c7;color:#78350f}
+.pp3{background:#dbeafe;color:#1e3a8a}
+.todo-item{padding:11px 18px;border-bottom:1px solid var(--fi-bd);display:flex;align-items:flex-start;gap:11px}
+.todo-item:last-child{border-bottom:none}
+.todo-item:hover{background:#faf9f6}
+.todo-chk{
+  width:17px;height:17px;border-radius:4px;
+  border:2px solid var(--fi-bd);flex-shrink:0;cursor:pointer;
+  margin-top:1px;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.todo-chk.done{background:var(--fi-teal);border-color:var(--fi-teal)}
+.todo-chk.done::after{content:'✓';color:white;font-size:10px;font-weight:700}
+.todo-body{flex:1;min-width:0}
+.todo-title{font-size:12px;font-weight:500;color:var(--fi-text);margin-bottom:2px}
+.todo-title.done{text-decoration:line-through;color:var(--fi-text3)}
+.todo-sub{font-size:11px;color:var(--fi-text3);line-height:1.4}
+.todo-contact{font-size:10px;color:var(--fi-ocean);margin-top:3px}
+
+/* ─── STATS ──────────────────────────────────────────── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.bar-row{margin-bottom:9px}
+.bar-lbl{display:flex;justify-content:space-between;margin-bottom:3px;font-size:12px}
+.bar-track{height:7px;background:var(--fi-sand);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .7s ease}
+
+/* row count */
+#row-count{font-size:11px;color:var(--fi-text3);margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     HEADER
+═══════════════════════════════════════ -->
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24"><path d="M12 2C7 2 3 6 3 11c0 5 9 13 9 13s9-8 9-13c0-5-4-9-9-9zm0 12a3 3 0 110-6 3 3 0 010 6z"/></svg>
+      </div>
+      <div class="logo-text">
+        <strong>Filovent</strong>
+        <small>Avitaillement — Outil interne</small>
+      </div>
+    </div>
+
+    <nav class="nav-tabs">
+      <div class="nav-tab active" onclick="showPage('reponses')">
+        <span class="tab-icon">📋</span>Réponses loueurs
+      </div>
+      <div class="nav-tab" onclick="showPage('base')">
+        <span class="tab-icon">🔍</span>Recherche avitaillement
+      </div>
+      <div class="nav-tab" onclick="showPage('todo')">
+        <span class="tab-icon">✅</span>Todo partenaires
+      </div>
+      <div class="nav-tab" onclick="showPage('stats')">
+        <span class="tab-icon">📊</span>Statistiques
+      </div>
+    </nav>
+
+    <div class="header-right">
+      <div class="sync-time"><div class="sync-dot"></div><span id="sync-label">Chargement…</span></div>
+      <button class="btn-sync" onclick="loadAll()">↻ Actualiser</button>
+      <div class="badge-live">Live</div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ═══════════════════════════════════════
+     PAGE 1 — RÉPONSES
+═══════════════════════════════════════ -->
+<div id="page-reponses" class="page active">
+
+  <div id="err-box" class="err-box">
+    ⚠️ <strong>Erreur de connexion.</strong> Vérifie que le Sheet est partagé en lecture publique.<br>
+    <span id="err-detail" style="font-size:11px;opacity:.7"></span>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi k-blue"><div class="kpi-label">Total réponses</div><div class="kpi-val" id="k-total">—</div><div class="kpi-sub">EN + FR</div></div>
+    <div class="kpi k-green"><div class="kpi-label">Service OUI</div><div class="kpi-val" id="k-yes">—</div><div class="kpi-sub">Provisioning dispo</div></div>
+    <div class="kpi k-red"><div class="kpi-label">Service NON</div><div class="kpi-val" id="k-no">—</div><div class="kpi-sub">Pas de service</div></div>
+    <div class="kpi k-amber"><div class="kpi-label">Formulaire EN</div><div class="kpi-val" id="k-en">—</div><div class="kpi-sub">Anglais</div></div>
+    <div class="kpi k-purple"><div class="kpi-label">Formulaire FR</div><div class="kpi-val" id="k-fr">—</div><div class="kpi-sub">Français</div></div>
+    <div class="kpi k-gray"><div class="kpi-label">Pays</div><div class="kpi-val" id="k-ct">—</div><div class="kpi-sub">Distincts</div></div>
+  </div>
+
+  <div class="src-tabs">
+    <div class="stab active" onclick="setSrc('all',this)">Tous <span class="cnt" id="cnt-all">—</span></div>
+    <div class="stab" onclick="setSrc('en',this)">Formulaire EN <span class="cnt" id="cnt-en">—</span></div>
+    <div class="stab" onclick="setSrc('fr',this)">Formulaire FR <span class="cnt" id="cnt-fr">—</span></div>
+  </div>
+
+  <div class="filter-bar">
+    <input type="text" id="srch-rep" class="srch" placeholder="🔍  Rechercher loueur, base, pays…" oninput="applyFilters()">
+    <div style="width:1px;height:20px;background:var(--fi-bd)"></div>
+    <div class="fbtn active" onclick="setSvc('all',this)">Tous</div>
+    <div class="fbtn" onclick="setSvc('yes',this)">Service OUI</div>
+    <div class="fbtn" onclick="setSvc('no',this)">Service NON</div>
+    <div style="width:1px;height:20px;background:var(--fi-bd)"></div>
+    <div id="ctry-btns" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+  </div>
+
+  <div id="row-count"></div>
+
+  <div style="background:white;border:1px solid var(--fi-bd);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)">
+    <div class="scrollable">
+      <div id="tbl-wrap">
+        <div class="loading"><div class="spinner"></div><div>Connexion à Google Sheets…</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE 2 — RECHERCHE AVITAILLEMENT
+═══════════════════════════════════════ -->
+<div id="page-base" class="page">
+
+  <div class="search-hero">
+    <h2>Recherche avitaillement</h2>
+    <p>Tapez le nom d'une marina pour voir la solution disponible, le process client et l'email à envoyer</p>
+    <div class="autocomplete-wrap">
+      <input type="text" id="base-srch" class="search-hero-input"
+        placeholder="Ex : Alimos, Le Marin, Split, Ajaccio, Martinique…"
+        oninput="onBaseInput(this.value)" onkeydown="onBaseKey(event)" autocomplete="off">
+      <div id="ac-drop" class="ac-dropdown"></div>
+    </div>
+  </div>
+
+  <div id="base-result" style="margin-bottom:24px;display:none"></div>
+
+  <!-- Toutes les bases -->
+  <div class="bases-table-wrap">
+    <div class="bases-table-hd">
+      <span>Toutes les bases référencées</span>
+      <span>Cliquer sur une ligne pour voir le détail</span>
+    </div>
+    <div class="scrollable">
+      <table class="dt">
+        <thead><tr>
+          <th>Marina / Base</th><th>Région</th><th>Pays</th>
+          <th>Partenaire</th><th>Délai</th><th>Statut</th>
+        </tr></thead>
+        <tbody id="all-bases-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE 3 — TODO
+═══════════════════════════════════════ -->
+<div id="page-todo" class="page">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <h2 style="font-size:18px;font-weight:500;color:var(--fi-text)">Todo — Partenaires à contacter</h2>
+    <span id="todo-prog" style="font-size:12px;color:var(--fi-text3)"></span>
+  </div>
+  <div class="todo-grid">
+    <div class="todo-card">
+      <div class="todo-card-hd"><h3>🔴 P1 — Avant saison</h3><span class="prio-pill pp1">Avril 2026</span></div>
+      <div id="todo-p1"></div>
+    </div>
+    <div class="todo-card">
+      <div class="todo-card-hd"><h3>🟡 P2 — Important</h3><span class="prio-pill pp2">Mai–Juin 2026</span></div>
+      <div id="todo-p2"></div>
+    </div>
+    <div class="todo-card">
+      <div class="todo-card-hd"><h3>📍 Zones non couvertes</h3><span style="font-size:11px;color:var(--fi-text3)">Action requise</span></div>
+      <div id="todo-zones"></div>
+    </div>
+    <div class="todo-card">
+      <div class="todo-card-hd"><h3>🔵 P3 — À planifier</h3><span class="prio-pill pp3">Dans la saison</span></div>
+      <div id="todo-p3"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE 4 — STATS
+═══════════════════════════════════════ -->
+<div id="page-stats" class="page">
+  <div id="stats-load" class="loading"><div class="spinner"></div><div>Calcul…</div></div>
+  <div id="stats-content" style="display:none">
+    <div class="two-col">
+      <div class="card"><div class="card-hd"><h2>Réponses par pays</h2></div><div id="ch-ct"></div></div>
+      <div class="card"><div class="card-hd"><h2>OUI vs NON par pays</h2></div><div id="ch-yn"></div></div>
+    </div>
+    <div class="two-col">
+      <div class="card"><div class="card-hd"><h2>Mode d'organisation</h2></div><div id="ch-org"></div></div>
+      <div class="card"><div class="card-hd"><h2>Formulaire EN vs FR</h2></div><div id="ch-lang"></div></div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ══════════════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════════════
+const SHEET_ID = '1v5TmH_vgtXY-K32qQXBUB7FRO3VNiziN2SdiiPMf1HA';
+const API_KEY  = 'AIzaSyD9s-CapFnn9PxZ0ZzAKAdKrs7jHn04N-A';
+const TAB_EN   = 'Réponses au formulaire 2';
+const TAB_FR   = 'Réponses au formulaire 1';
+const C = {date:0,company:1,base:2,service:3,org:4,link:5,deadline:6,costs:7,country:8};
+
+// ══════════════════════════════════════════════════════
+// TEMPLATE PARADISE FOODS
+// ══════════════════════════════════════════════════════
+function tplParadise(marina, ile) {
+  return `Bonjour [Prénom client],
+
+J'espère que vous allez bien. Je me présente, [Votre prénom] de l'équipe Conciergerie Filovent.
+
+Afin de démarrer votre croisière dans les meilleures conditions depuis ${marina}, nous souhaitions vous informer de la possibilité de faire livrer vos courses directement à bord, avant ou le jour de votre arrivée.
+
+Nous travaillons avec notre partenaire Paradise Foods, spécialiste du ravitaillement aux Caraïbes.
+
+Ce service vous permet de :
+• Commander une large sélection de produits frais et de qualité
+• Vous faire livrer directement sur votre bateau ou à quai
+• Découvrir des produits locaux ainsi que des produits importés
+
+En tant que client Filovent, un avantage vous est proposé. Les conditions sont précisées directement sur la plateforme.
+
+Pour commander :
+• iOS : https://apps.apple.com/us/app/paradise-foods/id6444190833
+• Android : https://play.google.com/store/apps/details?id=com.appelatous.app
+• Web : https://paradisefoods.com/fr/filovent-fr-t1y/#/location
+
+Il vous suffit de sélectionner votre île (${ile}), votre créneau de livraison, puis finaliser votre commande.
+
+Je reste à votre disposition pour toute question.
+
+Chaleureusement,
+[Votre prénom]`;
+}
+
+// ══════════════════════════════════════════════════════
+// BASE DE DONNÉES — 1 MARINA = 1 ENTRÉE
+// ══════════════════════════════════════════════════════
+const MARINAS = [
+
+  // ── GRÈCE — ATHÈNES (Balaskas) ──────────────────────
+  { marina:'Alimos Marina',            region:'Attique',       country:'Grèce',   partner:'Balaskas',    link:'https://balaskas.shop/en/?ref=filovent',              deadline:'72h',      status:'ok' },
+  { marina:'Agios Kosmas Marina',      region:'Attique',       country:'Grèce',   partner:'Balaskas',    link:'https://balaskas.shop/en/?ref=filovent',              deadline:'72h',      status:'ok' },
+  { marina:'Athens Marina (SEF)',      region:'Attique',       country:'Grèce',   partner:'Balaskas',    link:'https://balaskas.shop/en/?ref=filovent',              deadline:'72h',      status:'ok' },
+  { marina:'Flisvos Marina',           region:'Attique',       country:'Grèce',   partner:'Balaskas',    link:'https://balaskas.shop/en/?ref=filovent',              deadline:'72h',      status:'ok' },
+  { marina:'Marina Zeas',              region:'Pirée',         country:'Grèce',   partner:'Balaskas',    link:'https://balaskas.shop/en/?ref=filovent',              deadline:'72h',      status:'ok' },
+  { marina:'Marina Amfitheas',         region:'Attique',       country:'Grèce',   partner:'Balaskas',    link:'https://balaskas.shop/en/?ref=filovent',              deadline:'72h',      status:'ok' },
+  { marina:'Marina Elefsinas',         region:'Attique',       country:'Grèce',   partner:'Balaskas',    link:'https://balaskas.shop/en/?ref=filovent',              deadline:'72h',      status:'ok' },
+  { marina:'Nea Peramos',              region:'Attique',       country:'Grèce',   partner:'Balaskas',    link:'https://balaskas.shop/en/?ref=filovent',              deadline:'72h',      status:'ok' },
+  { marina:'Delta Marina Kallitheas',  region:'Attique',       country:'Grèce',   partner:'Balaskas',    link:'https://balaskas.shop/en/?ref=filovent',              deadline:'72h',      status:'ok' },
+  { marina:'Glyfada Marina',           region:'Attique',       country:'Grèce',   partner:'Balaskas',    link:'https://balaskas.shop/en/?ref=filovent',              deadline:'72h',      status:'ok' },
+  { marina:'Marina Vouliagmenis',      region:'Attique',       country:'Grèce',   partner:'Balaskas',    link:'https://balaskas.shop/en/?ref=filovent',              deadline:'72h',      status:'ok' },
+  { marina:'Marina Varkizas',          region:'Attique',       country:'Grèce',   partner:'Balaskas',    link:'https://balaskas.shop/en/?ref=filovent',              deadline:'72h',      status:'ok' },
+  { marina:'Marina Perama',            region:'Attique',       country:'Grèce',   partner:'Balaskas',    link:'https://balaskas.shop/en/?ref=filovent',              deadline:'72h',      status:'ok' },
+  { marina:'Olympic Marine Lavrio',    region:'Attique',       country:'Grèce',   partner:'Balaskas',    link:'https://balaskas.shop/en/?ref=filovent',              deadline:'72h',      status:'ok' },
+  { marina:'Lavrion Port',             region:'Attique',       country:'Grèce',   partner:'Balaskas',    link:'https://balaskas.shop/en/?ref=filovent',              deadline:'72h',      status:'ok' },
+  // Grèce — Îles
+  { marina:'Lefkas Marina',            region:'Ioniennes',     country:'Grèce',   partner:'Yachtness (à signer)',       link:'https://store.yachtness.com',  deadline:'Variable', status:'partial' },
+  { marina:'Préveza Port',             region:'Ioniennes',     country:'Grèce',   partner:'Yachtness (à signer)',       link:'https://store.yachtness.com',  deadline:'Variable', status:'partial' },
+  { marina:'Corfou / Gouvia Marina',   region:'Ioniennes',     country:'Grèce',   partner:'Marina Gouvia Market (à signer)', link:'https://marinagouviamarket.gr', deadline:'Variable', status:'partial' },
+  { marina:'Kos Marina',               region:'Dodécanèse',    country:'Grèce',   partner:'Istion (pas affilié)',        link:'CHARTER@ISTION.COM',           deadline:'72h',      status:'partial' },
+  { marina:'Rhodes Marina',            region:'Dodécanèse',    country:'Grèce',   partner:'Istion (pas affilié)',        link:'CHARTER@ISTION.COM',           deadline:'72h',      status:'partial' },
+  { marina:'Volos',                    region:'Sporades',      country:'Grèce',   partner:'AB Supermarkets (à affilier)', link:'https://www.ab.gr',           deadline:'24h',      status:'partial' },
+  { marina:'Mykonos',                  region:'Cyclades',      country:'Grèce',   partner:'Aucun',                       link:'',                             deadline:'—',        status:'nok' },
+  { marina:'Paros',                    region:'Cyclades',      country:'Grèce',   partner:'Fyly Yachting',               link:'fyly@fyly.gr',                 deadline:'Variable', status:'partial' },
+  { marina:'Skiathos',                 region:'Sporades',      country:'Grèce',   partner:'Aucun (supermarché proche)',   link:'',                             deadline:'—',        status:'nok' },
+
+  // ── CROATIE (Jam Yacht Supply) ───────────────────────
+  { marina:'ACI Marina Split',         region:'Dalmatie Centrale', country:'Croatie', partner:'Jam Yacht Supply', link:'https://www.jamyachtsupply.com/?af=Filovent', deadline:'48h', status:'ok' },
+  { marina:'Marina Kaštela',           region:'Dalmatie Centrale', country:'Croatie', partner:'Jam Yacht Supply', link:'https://www.jamyachtsupply.com/?af=Filovent', deadline:'48h', status:'ok' },
+  { marina:'West Harbour Split',       region:'Dalmatie Centrale', country:'Croatie', partner:'Jam Yacht Supply', link:'https://www.jamyachtsupply.com/?af=Filovent', deadline:'48h', status:'ok' },
+  { marina:'ACI Marina Trogir',        region:'Dalmatie Centrale', country:'Croatie', partner:'Jam Yacht Supply', link:'https://www.jamyachtsupply.com/?af=Filovent', deadline:'48h', status:'ok' },
+  { marina:'Marina Baotić Trogir',     region:'Dalmatie Centrale', country:'Croatie', partner:'Jam Yacht Supply', link:'https://www.jamyachtsupply.com/?af=Filovent', deadline:'48h', status:'ok' },
+  { marina:'Marina SCT Trogir',        region:'Dalmatie Centrale', country:'Croatie', partner:'Jam Yacht Supply', link:'https://www.jamyachtsupply.com/?af=Filovent', deadline:'48h', status:'ok' },
+  { marina:'ACI Marina Dubrovnik',     region:'Dalmatie Sud',      country:'Croatie', partner:'Jam Yacht Supply', link:'https://www.jamyachtsupply.com/?af=Filovent', deadline:'48h', status:'ok' },
+  { marina:'D-Marina Mandalina Šibenik', region:'Dalmatie Nord',   country:'Croatie', partner:'Jam Yacht Supply', link:'https://www.jamyachtsupply.com/?af=Filovent', deadline:'48h', status:'ok' },
+  { marina:'Marina Kornati Biograd',   region:'Dalmatie Nord',     country:'Croatie', partner:'Jam Yacht Supply', link:'https://www.jamyachtsupply.com/?af=Filovent', deadline:'48h', status:'ok' },
+  { marina:'D-Marina Dalmacija Sukošan', region:'Dalmatie Nord',   country:'Croatie', partner:'Jam Yacht Supply', link:'https://www.jamyachtsupply.com/?af=Filovent', deadline:'48h', status:'ok' },
+  { marina:'Zadar',                    region:'Dalmatie Nord',     country:'Croatie', partner:'Jam Yacht Supply', link:'https://www.jamyachtsupply.com/?af=Filovent', deadline:'48h', status:'ok' },
+  { marina:'Marina Frapa Rogoznica',   region:'Dalmatie Centrale', country:'Croatie', partner:'Jam Yacht Supply', link:'https://www.jamyachtsupply.com/?af=Filovent', deadline:'48h', status:'ok' },
+  { marina:'Pula',                     region:'Istrie',            country:'Croatie', partner:'Jam Yacht Supply (côte uniquement)', link:'https://www.jamyachtsupply.com/?af=Filovent', deadline:'48h', status:'partial' },
+
+  // ── ITALIE — SARDAIGNE (GustoCambusa) ───────────────
+  { marina:'Olbia Moys',               region:'Sardaigne',     country:'Italie',  partner:'GustoCambusa', link:'https://www.gustocambusa.com/?ref=LTVMDHVAGTTI7BFGVVNIFXL4K', deadline:'Min. 48h', status:'ok' },
+  { marina:'Olbia Isola Bianca',       region:'Sardaigne',     country:'Italie',  partner:'GustoCambusa', link:'https://www.gustocambusa.com/?ref=LTVMDHVAGTTI7BFGVVNIFXL4K', deadline:'Min. 48h', status:'ok' },
+  { marina:'Olbia Lega Navale',        region:'Sardaigne',     country:'Italie',  partner:'GustoCambusa', link:'https://www.gustocambusa.com/?ref=LTVMDHVAGTTI7BFGVVNIFXL4K', deadline:'Min. 48h', status:'ok' },
+  { marina:'Golfo Aranci',             region:'Sardaigne',     country:'Italie',  partner:'GustoCambusa', link:'https://www.gustocambusa.com/?ref=LTVMDHVAGTTI7BFGVVNIFXL4K', deadline:'Min. 48h', status:'ok' },
+  { marina:'Porto Rotondo',            region:'Sardaigne',     country:'Italie',  partner:'GustoCambusa', link:'https://www.gustocambusa.com/?ref=LTVMDHVAGTTI7BFGVVNIFXL4K', deadline:'Min. 48h', status:'ok' },
+  { marina:'Cugnana',                  region:'Sardaigne',     country:'Italie',  partner:'GustoCambusa', link:'https://www.gustocambusa.com/?ref=LTVMDHVAGTTI7BFGVVNIFXL4K', deadline:'Min. 48h', status:'ok' },
+  { marina:'Punta Nuraghe',            region:'Sardaigne',     country:'Italie',  partner:'GustoCambusa', link:'https://www.gustocambusa.com/?ref=LTVMDHVAGTTI7BFGVVNIFXL4K', deadline:'Min. 48h', status:'ok' },
+  { marina:'Punta Asfodeli',           region:'Sardaigne',     country:'Italie',  partner:'GustoCambusa', link:'https://www.gustocambusa.com/?ref=LTVMDHVAGTTI7BFGVVNIFXL4K', deadline:'Min. 48h', status:'ok' },
+  { marina:'Cala Dei Sardi',           region:'Sardaigne',     country:'Italie',  partner:'GustoCambusa', link:'https://www.gustocambusa.com/?ref=LTVMDHVAGTTI7BFGVVNIFXL4K', deadline:'Min. 48h', status:'ok' },
+  { marina:'Portisco',                 region:'Sardaigne',     country:'Italie',  partner:'GustoCambusa', link:'https://www.gustocambusa.com/?ref=LTVMDHVAGTTI7BFGVVNIFXL4K', deadline:'Min. 48h', status:'ok' },
+  { marina:'Poltu Quatu',              region:'Sardaigne',     country:'Italie',  partner:'GustoCambusa', link:'https://www.gustocambusa.com/?ref=LTVMDHVAGTTI7BFGVVNIFXL4K', deadline:'Min. 48h', status:'ok' },
+  { marina:'Cannigione',               region:'Sardaigne',     country:'Italie',  partner:'GustoCambusa', link:'https://www.gustocambusa.com/?ref=LTVMDHVAGTTI7BFGVVNIFXL4K', deadline:'Min. 48h', status:'ok' },
+  { marina:'Porto Cervo',              region:'Sardaigne',     country:'Italie',  partner:'GustoCambusa', link:'https://www.gustocambusa.com/?ref=LTVMDHVAGTTI7BFGVVNIFXL4K', deadline:'Min. 48h', status:'ok' },
+  // Italie — Sicile (non couvert)
+  { marina:'Palermo',                  region:'Sicile',        country:'Italie',  partner:'Aucun',        link:'',  deadline:'—', status:'nok' },
+  { marina:'Trapani',                  region:'Sicile',        country:'Italie',  partner:'Aucun',        link:'',  deadline:'—', status:'nok' },
+  { marina:'Milazzo',                  region:'Sicile',        country:'Italie',  partner:'Aucun',        link:'',  deadline:'—', status:'nok' },
+  { marina:'Portorosa',                region:'Sicile',        country:'Italie',  partner:'Aucun',        link:'',  deadline:'—', status:'nok' },
+  { marina:'Capo d\'Orlando',          region:'Sicile',        country:'Italie',  partner:'DESPAR Marina (à confirmer)', link:'', deadline:'>7j', status:'partial' },
+  // Italie — Autres
+  { marina:'Salerno / Marina d\'Arechi', region:'Campanie',    country:'Italie',  partner:'Blue Trend srl (via loueur)', link:'info@bluetrend.it', deadline:'72h', status:'partial' },
+  { marina:'San Vincenzo',             region:'Toscane',       country:'Italie',  partner:'Esselunga Online (via loueur)', link:'', deadline:'Variable', status:'partial' },
+
+  // ── ESPAGNE ──────────────────────────────────────────
+  { marina:'Ibiza — Marina Botafoch',  region:'Baléares',      country:'Espagne', partner:'Tuhiper (à signer)', link:'https://tuhiper.com', deadline:'72h',  status:'partial' },
+  { marina:'Ibiza — Talamanca',        region:'Baléares',      country:'Espagne', partner:'Tuhiper (à signer)', link:'https://tuhiper.com', deadline:'72h',  status:'partial' },
+  { marina:'Palma de Mallorca',        region:'Baléares',      country:'Espagne', partner:'Tuhiper / Galley Order (à signer)', link:'', deadline:'—', status:'nok' },
+  { marina:'Port d\'Andratx',          region:'Baléares',      country:'Espagne', partner:'Tuhiper (à signer)', link:'https://tuhiper.com', deadline:'72h',  status:'partial' },
+  { marina:'Marina La Savina — Formentera', region:'Baléares', country:'Espagne', partner:'Tuhiper (à signer)', link:'https://tuhiper.com', deadline:'72h',  status:'partial' },
+  { marina:'Minorque — Mahon',         region:'Baléares',      country:'Espagne', partner:'Aucun',              link:'',                    deadline:'—',    status:'nok' },
+  { marina:'Valencia Mar',             region:'Péninsule',     country:'Espagne', partner:'Setsail World',      link:'info@setsail.world',  deadline:'72h',  status:'partial' },
+  { marina:'Real Club Nautico de Vigo', region:'Galice',       country:'Espagne', partner:'Eroski Drive',       link:'https://supermercado.eroski.es/en/', deadline:'48h', status:'partial' },
+  { marina:'Monte Real Club de Yates — Baiona', region:'Galice', country:'Espagne', partner:'Eroski Drive',    link:'https://supermercado.eroski.es/en/', deadline:'48h', status:'partial' },
+  { marina:'Empúriabrava',             region:'Costa Brava',   country:'Espagne', partner:'Mercadona Online',  link:'https://tienda.mercadona.es', deadline:'>72h', status:'partial' },
+
+  // ── FRANCE MÉD. ──────────────────────────────────────
+  { marina:'Marseille (divers ports)', region:'PACA',          country:'France Méd.', partner:'Houra.fr ou Carrefour Drive', link:'https://www.houra.fr', deadline:'24h', status:'partial' },
+  { marina:'Toulon — Vieille Darse',   region:'PACA',          country:'France Méd.', partner:'Carrefour Drive Toulon',      link:'https://www.carrefour.fr/magasin/type/livraison-domicile/toulon-83137', deadline:'24h', status:'partial' },
+  { marina:'Port Pin Rolland',         region:'PACA',          country:'France Méd.', partner:'Intermarché La Seyne',        link:'https://www.intermarche.com', deadline:'>72h', status:'partial' },
+  { marina:'Bandol',                   region:'PACA',          country:'France Méd.', partner:'Carrefour Market Bandol',     link:'https://www.carrefour.fr/magasin/market-bandol', deadline:'48h', status:'partial' },
+  { marina:'Antibes',                  region:'Côte d\'Azur',  country:'France Méd.', partner:'LB Yachting (interne)',       link:'location@lb-yachting.com', deadline:'72h', status:'partial' },
+  { marina:'Port Grimaud',             region:'Côte d\'Azur',  country:'France Méd.', partner:'Auchan Drive Gassin',         link:'https://www.auchan.fr', deadline:'48h', status:'partial' },
+  { marina:'Marines de Cogolin',       region:'Côte d\'Azur',  country:'France Méd.', partner:'Auchan Drive Gassin',         link:'https://www.auchan.fr', deadline:'48h', status:'partial' },
+  { marina:'Golfe Juan',               region:'Côte d\'Azur',  country:'France Méd.', partner:'Super U Golfe Juan',          link:'uexpress.golfejuan@systeme-u.fr', deadline:'Variable', status:'partial' },
+  { marina:'Saint-Raphaël — Port Santa Lucia', region:'Côte d\'Azur', country:'France Méd.', partner:'Spar Port Santa Lucia', link:'sparsanta@orange.fr', deadline:'Variable', status:'partial' },
+  { marina:'Saint-Cyprien',            region:'Occitanie',     country:'France Méd.', partner:'Drive local (à confirmer)',   link:'', deadline:'>72h', status:'partial' },
+  { marina:'Hyères — Le Gapeau',       region:'PACA',          country:'France Méd.', partner:'ACM Cata (prestataire)',      link:'commercial@acm-cata.com', deadline:'>72h', status:'partial' },
+
+  // ── FRANCE ATLANTIQUE ─────────────────────────────────
+  { marina:'Crouesty / Arzon',         region:'Bretagne',      country:'France Atl.', partner:'Intermarché Arzon',          link:'',  deadline:'48h', status:'partial' },
+  { marina:'Arzal',                    region:'Bretagne',      country:'France Atl.', partner:'Drive local',                link:'',  deadline:'Variable', status:'partial' },
+  { marina:'Port Diélette',            region:'Normandie',     country:'France Manche', partner:'Super U + Intermarché Drive', link:'', deadline:'24h', status:'partial' },
+  { marina:'La Rochelle',              region:'Charente-Mme',  country:'France Atl.', partner:'Aucun (Chrono Drive ?)',      link:'',  deadline:'—', status:'nok' },
+  { marina:'Brest',                    region:'Bretagne',      country:'France Atl.', partner:'Aucun',                      link:'',  deadline:'—', status:'nok' },
+
+  // ── CORSE ─────────────────────────────────────────────
+  { marina:'Ajaccio — Port Charles Ornano', region:'Corse',   country:'Corse', partner:'Spar Ajaccio',   link:'spar.diamant2@orange.fr', deadline:'Variable', status:'ok' },
+  { marina:'Calvi',                    region:'Corse',         country:'Corse', partner:'Auchan Drive',   link:'https://www.auchan.fr',   deadline:'24h',      status:'partial' },
+  { marina:'Porto-Vecchio',            region:'Corse',         country:'Corse', partner:'Super U Porto-Vecchio', link:'utile.portovecchiomazetta@systeme-u.fr', deadline:'Variable', status:'partial' },
+  { marina:'Port Charles Ornano — CORSE CATAMARANS', region:'Corse', country:'Corse', partner:'Spar (Mes Courses de Proximité)', link:'https://www.mescoursesdeproximite.com/courses-en-ligne/spar-20000/TL831', deadline:'>72h', status:'partial' },
+  { marina:'Propriano',                region:'Corse',         country:'Corse', partner:'DRIVE (via loueur)', link:'', deadline:'Variable', status:'partial' },
+
+  // ── ANTILLES — PARADISE FOODS ─────────────────────────
+  { marina:'Le Marin — Martinique',    region:'Martinique',    country:'Antilles', partner:'Paradise Foods + Zagaya', link:'https://paradisefoods.com/fr/filovent-fr-t1y/#/location', deadline:'Variable', status:'ok',  ile:'Martinique' },
+  { marina:'Fort-de-France',           region:'Martinique',    country:'Antilles', partner:'Paradise Foods',         link:'https://paradisefoods.com/fr/filovent-fr-t1y/#/location', deadline:'Variable', status:'ok',  ile:'Martinique' },
+  { marina:'Bas du Fort — Guadeloupe', region:'Guadeloupe',    country:'Antilles', partner:'Appromarine + Paradise Foods', link:'https://paradisefoods.com/fr/filovent-fr-t1y/#/location', deadline:'8 jours', status:'ok', ile:'Guadeloupe' },
+  { marina:'Marina de Saint-Martin',   region:'Saint-Martin',  country:'Antilles', partner:'Paradise Foods',         link:'https://paradisefoods.com/fr/filovent-fr-t1y/#/location', deadline:'Variable', status:'ok',  ile:'Saint-Martin' },
+  { marina:'Gustavia — Saint-Barthélemy', region:'Saint-Barth', country:'Antilles', partner:'Paradise Foods',        link:'https://paradisefoods.com/fr/filovent-fr-t1y/#/location', deadline:'Variable', status:'ok',  ile:'Saint-Barth' },
+  { marina:'Kingstown — Saint-Vincent', region:'St. Vincent',  country:'Antilles', partner:'Paradise Foods',         link:'https://paradisefoods.com/fr/filovent-fr-t1y/#/location', deadline:'Variable', status:'ok',  ile:'Saint-Vincent' },
+  { marina:'Port Elizabeth — Bequia',  region:'St. Vincent',   country:'Antilles', partner:'Paradise Foods',         link:'https://paradisefoods.com/fr/filovent-fr-t1y/#/location', deadline:'Variable', status:'ok',  ile:'Bequia' },
+  { marina:'Moustique',                region:'Grenadines',    country:'Antilles', partner:'Paradise Foods',         link:'https://paradisefoods.com/fr/filovent-fr-t1y/#/location', deadline:'Variable', status:'ok',  ile:'Moustique' },
+  { marina:'Canouan',                  region:'Grenadines',    country:'Antilles', partner:'Paradise Foods',         link:'https://paradisefoods.com/fr/filovent-fr-t1y/#/location', deadline:'Variable', status:'ok',  ile:'Canouan' },
+  { marina:'English Harbour — Antigua', region:'Antigua',      country:'Antilles', partner:'Paradise Foods',         link:'https://paradisefoods.com/fr/filovent-fr-t1y/#/location', deadline:'Variable', status:'ok',  ile:'Antigua' },
+  { marina:'Bridgetown — Barbade',     region:'Barbade',       country:'Antilles', partner:'Paradise Foods',         link:'https://paradisefoods.com/fr/filovent-fr-t1y/#/location', deadline:'Variable', status:'ok',  ile:'Barbade' },
+
+  // Turquie
+  { marina:'Bodrum',                   region:'Égée',          country:'Turquie', partner:'De Yachting (email/whatsapp)', link:'', deadline:'Variable', status:'partial' },
+];
+
+// ══════════════════════════════════════════════════════
+// PROCESS PAR PARTENAIRE
+// ══════════════════════════════════════════════════════
+const PARTNER_PROCESS = {
+  'Balaskas': {
+    process: 'Envoyer ce lien au client :\nhttps://balaskas.shop/en/?ref=filovent\n\nLe client doit indiquer :\n• Heure d\'embarquement\n• Nom exact du bateau (pas le modèle)\n• Nom du loueur sur place',
+    mailGen: (m) => `Bonjour [Prénom client],\n\nPour votre avitaillement au départ de ${m.marina} (${m.region}), vous pouvez commander directement en ligne via notre partenaire Balaskas :\n\n👉 https://balaskas.shop/en/?ref=filovent\n\nLors de votre commande, merci d'indiquer :\n• Votre heure d'embarquement\n• Le nom exact de votre bateau (pas le modèle)\n• Le nom de votre loueur sur place\n\nDélai : minimum 72h avant l'embarquement.\n\nBonne croisière !\n[Votre prénom]`
+  },
+  'Jam Yacht Supply': {
+    process: 'Envoyer ce lien au client :\nhttps://www.jamyachtsupply.com/?af=Filovent\n\nLe client doit indiquer :\n• Heure d\'embarquement\n• Nom exact du bateau\n• Nom du loueur sur place\n• Nom de la marina + ponton/quai',
+    mailGen: (m) => `Bonjour [Prénom client],\n\nPour votre avitaillement au départ de ${m.marina} (Croatie), vous pouvez commander directement en ligne :\n\n👉 https://www.jamyachtsupply.com/?af=Filovent\n\nLors de votre commande, merci d'indiquer :\n• Votre heure d'embarquement\n• Le nom exact de votre bateau\n• Le nom de votre loueur sur place\n• Le nom de la marina et votre ponton\n\nDélai : minimum 48h avant l'embarquement.\n\nBonne croisière !\n[Votre prénom]`
+  },
+  'GustoCambusa': {
+    process: 'Envoyer ce lien au client :\nhttps://www.gustocambusa.com/?ref=LTVMDHVAGTTI7BFGVVNIFXL4K\n\nLe client doit indiquer "Filovent" dans la case Broker.\nAussi : heure embarquement + nom exact du bateau + nom loueur.\nIdéalement commander en début de semaine.',
+    mailGen: (m) => `Bonjour [Prénom client],\n\nPour votre avitaillement au départ de ${m.marina} (Sardaigne), commander directement via notre partenaire GustoCambusa :\n\n👉 https://www.gustocambusa.com/?ref=LTVMDHVAGTTI7BFGVVNIFXL4K\n\nImportant — lors de la validation, indiquer :\n• "Filovent" dans la case Broker\n• Votre heure d'embarquement\n• Le nom exact de votre bateau\n• Le nom de votre loueur sur place\n\nDélai : minimum 48h. Idéalement commander en début de semaine.\n\nBonne croisière !\n[Votre prénom]`
+  },
+  'Paradise Foods': {
+    process: 'Envoyer le lien Paradise Foods Filovent au client.\nLe client sélectionne son île, son créneau, puis finalise sa commande.\niOS : https://apps.apple.com/us/app/paradise-foods/id6444190833\nAndroid : https://play.google.com/store/apps/details?id=com.appelatous.app\nWeb : https://paradisefoods.com/fr/filovent-fr-t1y/#/location',
+    mailGen: (m) => tplParadise(m.marina, m.ile || m.region)
+  },
+  'Appromarine + Paradise Foods': {
+    process: 'Deux options disponibles :\n1. Appromarine : fichier Excel à compléter → envoyer à Carolina Mezence : appromarine@orange.fr / +33 6 95 68 35 57\n2. Paradise Foods : https://paradisefoods.com/fr/filovent-fr-t1y/#/location',
+    mailGen: (m) => tplParadise(m.marina, 'Guadeloupe')
+  },
+  'Spar Ajaccio': {
+    process: 'Envoyer le fichier Excel d\'avitaillement au client.\nRenvoyer le Excel complété à :\nCédric Marras — spar.diamant2@orange.fr\n⚠️ Aucune commission Filovent avec ce partenaire.',
+    mailGen: (m) => `Bonjour [Prénom client],\n\nPour votre avitaillement depuis ${m.marina}, merci de compléter le fichier Excel joint.\n\nUne fois rempli, renvoyez-le directement à notre partenaire sur place :\nCédric Marras — spar.diamant2@orange.fr\n\nBonne croisière !\n[Votre prénom]`
+  },
+  'Zagaya': {
+    process: 'Envoyer le lien Zagaya au client :\nhttps://appro-zagaya.fr/fr/\nOu Paradise Foods : https://paradisefoods.com/fr/filovent-fr-t1y/#/location',
+    mailGen: (m) => `Bonjour [Prénom client],\n\nPour votre avitaillement en Martinique (${m.marina}), deux options s'offrent à vous :\n\n1. Zagaya : https://appro-zagaya.fr/fr/\n2. Paradise Foods : https://paradisefoods.com/fr/filovent-fr-t1y/#/location\n\nSélectionnez votre créneau de livraison et finalisez votre commande.\n\nBonne croisière !\n[Votre prénom]`
+  },
+  'Paradise Foods + Zagaya': {
+    process: 'Deux options disponibles :\n1. Zagaya : https://appro-zagaya.fr/fr/\n2. Paradise Foods : https://paradisefoods.com/fr/filovent-fr-t1y/#/location',
+    mailGen: (m) => tplParadise(m.marina, 'Martinique')
+  }
+};
+
+// ══════════════════════════════════════════════════════
+// TODO
+// ══════════════════════════════════════════════════════
+const TODO_P1 = [
+  {id:'t1',title:'Contractualiser Yachtness',sub:'Lien ?tracking=filovent — Lefkas, Corfou, Rhodes, Kos, Mykonos, Paros, Préveza',contact:'hey@yachtness.com'},
+  {id:'t2',title:'Contacter Marina Gouvia Market',sub:'Solution directe pour Corfou — clé pour les Ioniennes',contact:'info@marinagouviamarket.gr'},
+  {id:'t3',title:'Signer partenariat Tuhiper',sub:'Toutes les Baléares : Mallorca, Ibiza, Formentera, Minorque',contact:'mallorca@tuhiper.com'},
+  {id:'t4',title:'Étendre GustoCambusa → Sicile',sub:'Palermo, Portorosa, Trapani, Milazzo — 4 bases sans solution',contact:'info@gustocambusa.com'},
+];
+const TODO_P2 = [
+  {id:'t5',title:'Affilier AB Supermarkets Greece',sub:'Volos, Skiathos, Kalamata — www.ab.gr déjà utilisé par loueurs',contact:'dpo@aholddelhaize.com'},
+  {id:'t6',title:'Galley Order — Baléares',sub:'Alternative premium Tuhiper — livraison 3h réfrigérée partout dans les Baléares',contact:'info@galleyorder.com'},
+  {id:'t7',title:'Standardiser Carrefour Drive France Méd.',sub:'Bandol, Toulon, Marseille — créer fiche par base avec liens et délais',contact:'—'},
+  {id:'t8',title:'Couvrir La Rochelle + Brest',sub:'France Atlantique — Drives Leclerc/Carrefour à identifier et formaliser',contact:'—'},
+];
+const TODO_P3 = [
+  {id:'t9',title:'Sourcer Barcelone / Alicante',sub:'Péninsule ibérique non couverte hors Vigo/Baiona',contact:'Sabor Provisions BCN'},
+  {id:'t10',title:'Renégocier commission Spar Corse',sub:'Fonctionne bien mais 0 commission Filovent',contact:'spar.diamant2@orange.fr — Cédric Marras'},
+  {id:'t11',title:'Qualifier Azorean Dream (Açores)',sub:'Nouveau loueur mars 2026 — base Angra Marina, Terceira',contact:'azoreandream@gmail.com'},
+];
+const TODO_ZONES = [
+  {zone:'Sicile complète', note:'Palermo, Trapani, Milazzo, Portorosa — en attente extension GustoCambusa'},
+  {zone:'Baléares — Mallorca, Minorque', note:'En attente signature Tuhiper'},
+  {zone:'Grèce — Îles (Mykonos, Skiathos…)', note:'En attente signature Yachtness'},
+  {zone:'La Rochelle / Brest', note:'Drives disponibles mais non formalisés'},
+  {zone:'Espagne péninsule (Barcelone, Alicante)', note:'Aucune solution documentée'},
+];
+
+let todoState = {};
+[...TODO_P1,...TODO_P2,...TODO_P3].forEach(t=>todoState[t.id]=false);
+
+// ══════════════════════════════════════════════════════
+// SHEETS STATE
+// ══════════════════════════════════════════════════════
+let rowsEN=[], rowsFR=[];
+let activeSrc='all', activeSvc='all', activeCtry='all';
+
+// ══════════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════════
+function normC(raw){
+  const s=(raw||'').trim();
+  if(!s) return 'Non renseigné';
+  const m={'Greece':'Grèce','GREECE':'Grèce','Croatia':'Croatie','CROATIA':'Croatie',
+    'Italia':'Italie','ITALIA':'Italie','Italy':'Italie','Spain':'Espagne','SPAIN':'Espagne',
+    'France Méditerranée':'France Méd.','France Atlantique':'France Atl.',
+    'France Manche':'France Manche','Antilles':'Antilles','Corse':'Corse',
+    'The Azores':'Açores','Azores':'Açores','Turquie':'Turquie','Turkey':'Turquie'};
+  return m[s]||s;
+}
+function isYes(r,lang){
+  const s=(r[C.service]||'').toUpperCase().trim();
+  return lang==='fr'?s==='OUI':s==='YES';
+}
+function ccClass(c){
+  const s=(c||'').toLowerCase();
+  if(s.includes('grèce')||s.includes('greec')) return 'c-gr';
+  if(s.includes('croat')) return 'c-hr';
+  if(s.includes('ital')) return 'c-it';
+  if(s.includes('espagne')||s.includes('spain')) return 'c-es';
+  if(s.includes('france')||s.includes('corse')) return 'c-fr';
+  if(s.includes('antilles')||s.includes('bvi')||s.includes('caraï')||s.includes('martin')||s.includes('guadeloupe')) return 'c-ant';
+  if(s.includes('turquie')||s.includes('turkey')) return 'c-tr';
+  return 'c-other';
+}
+function spStatus(s){
+  if(s==='ok') return '<span class="pill p-ok">Couvert</span>';
+  if(s==='partial') return '<span class="pill p-partial">Partiel</span>';
+  return '<span class="pill p-nok">Non couvert</span>';
+}
+
+// ══════════════════════════════════════════════════════
+// FETCH
+// ══════════════════════════════════════════════════════
+async function fetchSheet(tab){
+  const url=`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(tab)}?key=${API_KEY}`;
+  const r=await fetch(url);
+  if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'HTTP '+r.status);}
+  const d=await r.json();
+  return (d.values||[]).slice(1).filter(row=>row&&row.length>1&&(row[C.company]||'').trim());
+}
+async function loadAll(){
+  const btn=document.querySelector('.btn-sync');
+  btn.textContent='↻ …';
+  document.getElementById('err-box').style.display='none';
+  try{
+    const [en,fr]=await Promise.all([fetchSheet(TAB_EN),fetchSheet(TAB_FR)]);
+    rowsEN=en.map(r=>{r._lang='en';return r;});
+    rowsFR=fr.map(r=>{r._lang='fr';return r;});
+    updateKPIs(); buildCtryFilters(); applyFilters(); buildStats(); renderAllBases();
+    document.getElementById('sync-label').textContent='Sync '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    btn.textContent='↻ Actualiser';
+  }catch(e){
+    document.getElementById('err-box').style.display='block';
+    document.getElementById('err-detail').textContent=e.message;
+    btn.textContent='↻ Erreur';
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// KPIs
+// ══════════════════════════════════════════════════════
+function updateKPIs(){
+  const all=[...rowsEN,...rowsFR];
+  const yes=all.filter(r=>isYes(r,r._lang)).length;
+  const ct=new Set(all.map(r=>normC(r[C.country])).filter(c=>c!=='Non renseigné')).size;
+  document.getElementById('k-total').textContent=all.length;
+  document.getElementById('k-yes').textContent=yes;
+  document.getElementById('k-no').textContent=all.length-yes;
+  document.getElementById('k-en').textContent=rowsEN.length;
+  document.getElementById('k-fr').textContent=rowsFR.length;
+  document.getElementById('k-ct').textContent=ct;
+  document.getElementById('cnt-all').textContent=all.length;
+  document.getElementById('cnt-en').textContent=rowsEN.length;
+  document.getElementById('cnt-fr').textContent=rowsFR.length;
+}
+
+// ══════════════════════════════════════════════════════
+// TABLE RÉPONSES
+// ══════════════════════════════════════════════════════
+function getRows(){
+  if(activeSrc==='en') return rowsEN;
+  if(activeSrc==='fr') return rowsFR;
+  return [...rowsEN,...rowsFR];
+}
+function buildCtryFilters(){
+  const counts={};
+  getRows().forEach(r=>{const c=normC(r[C.country])||'Non renseigné';counts[c]=(counts[c]||0)+1;});
+  document.getElementById('ctry-btns').innerHTML=Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([c,n])=>
+    `<div class="fbtn" onclick="setCtry('${c.replace(/'/g,"\\'")}',this)">${c} <span style="opacity:.5;font-size:10px">${n}</span></div>`
+  ).join('');
+}
+function applyFilters(){
+  const srch=(document.getElementById('srch-rep')?.value||'').toLowerCase().trim();
+  let rows=getRows().filter(r=>{
+    if(activeSvc==='yes'&&!isYes(r,r._lang)) return false;
+    if(activeSvc==='no'&&isYes(r,r._lang)) return false;
+    if(activeCtry!=='all'&&normC(r[C.country])!==activeCtry) return false;
+    if(srch){const h=[r[C.company],r[C.base],r[C.country],r[C.org],r[C.link]].join(' ').toLowerCase();if(!h.includes(srch)) return false;}
+    return true;
+  });
+  document.getElementById('row-count').textContent=rows.length+' réponse'+(rows.length>1?'s':'')+' affichée'+(rows.length>1?'s':'');
+  if(!rows.length){document.getElementById('tbl-wrap').innerHTML=`<div class="loading"><div style="font-size:24px;margin-bottom:8px">🔍</div><div>Aucune réponse trouvée</div></div>`;return;}
+  document.getElementById('tbl-wrap').innerHTML=`
+    <table class="dt"><thead><tr>
+      <th>#</th><th>Source</th><th>Date</th><th>Loueur</th><th>Base / Marina</th>
+      <th>Service?</th><th>Organisation</th><th>Lien</th><th>Délai</th><th>Pays</th>
+    </tr></thead><tbody>${rows.map((r,i)=>{
+      const yes=isYes(r,r._lang);
+      const date=(r[C.date]||'').split(' ')[0];
+      const cn=normC(r[C.country]);
+      const lnk=r[C.link]||'';
+      const lh=lnk.startsWith('http')?`<a href="${lnk}" target="_blank" style="color:var(--fi-ocean);font-size:11px">${lnk.substring(0,38)}${lnk.length>38?'…':''}</a>`:`<span style="font-size:11px;color:var(--fi-text3)">${lnk||'—'}</span>`;
+      return `<tr style="background:${i%2===0?'#fff':'#faf9f6'}">
+        <td style="text-align:center;color:var(--fi-text3);font-size:11px">${i+1}</td>
+        <td style="text-align:center"><span class="pill ${r._lang==='fr'?'p-fr':'p-en'}">${r._lang.toUpperCase()}</span></td>
+        <td style="font-size:11px;color:var(--fi-text3);white-space:nowrap">${date}</td>
+        <td><strong style="font-size:12px">${r[C.company]||'—'}</strong></td>
+        <td style="font-size:12px">${r[C.base]||'—'}</td>
+        <td style="text-align:center"><span class="pill ${yes?'p-yes':'p-no'}">${yes?'OUI':'NON'}</span></td>
+        <td style="font-size:11px;color:var(--fi-text2);max-width:160px">${r[C.org]||'—'}</td>
+        <td style="max-width:150px">${lh}</td>
+        <td style="font-size:11px;white-space:nowrap">${r[C.deadline]||'—'}</td>
+        <td><span class="pill ${ccClass(cn)}">${cn}</span></td>
+      </tr>`;
+    }).join('')}</tbody></table>`;
+}
+
+// ══════════════════════════════════════════════════════
+// RECHERCHE AVITAILLEMENT — AUTOCOMPLETE
+// ══════════════════════════════════════════════════════
+let acIndex = -1;
+
+function onBaseInput(q){
+  acIndex=-1;
+  const drop=document.getElementById('ac-drop');
+  if(!q||q.length<2){drop.style.display='none';document.getElementById('base-result').style.display='none';return;}
+  const ql=q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const matches=MARINAS.filter(m=>{
+    const name=m.marina.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    const region=(m.region||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    const country=(m.country||'').toLowerCase();
+    return name.includes(ql)||region.includes(ql)||country.includes(ql);
+  }).slice(0,8);
+  if(!matches.length){drop.style.display='none';return;}
+  drop.style.display='block';
+  drop.innerHTML=matches.map((m,i)=>`
+    <div class="ac-item" onmousedown="selectMarina(${MARINAS.indexOf(m)})" id="ac-${i}">
+      <div>
+        <div class="ac-name">${m.marina}</div>
+        <div class="ac-meta">${m.region} · ${m.country}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="pill ${ccClass(m.country)}" style="font-size:9px">${m.country}</span>
+        ${spStatus(m.status)}
+      </div>
+    </div>`).join('');
+}
+
+function onBaseKey(e){
+  const items=document.querySelectorAll('.ac-item');
+  if(e.key==='ArrowDown'){acIndex=Math.min(acIndex+1,items.length-1);items.forEach((el,i)=>el.style.background=i===acIndex?'var(--fi-sand)':'');}
+  else if(e.key==='ArrowUp'){acIndex=Math.max(acIndex-1,0);items.forEach((el,i)=>el.style.background=i===acIndex?'var(--fi-sand)':'');}
+  else if(e.key==='Enter'&&acIndex>=0){
+    const vis=MARINAS.filter(m=>{
+      const ql=(document.getElementById('base-srch').value||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      const name=m.marina.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      return name.includes(ql);
+    });
+    if(vis[acIndex]) selectMarina(MARINAS.indexOf(vis[acIndex]));
+  }
+}
+
+function selectMarina(idx){
+  const m=MARINAS[idx];
+  if(!m) return;
+  document.getElementById('base-srch').value=m.marina;
+  document.getElementById('ac-drop').style.display='none';
+  showMarinaResult(m);
+}
+
+function showMarinaResult(m){
+  const res=document.getElementById('base-result');
+  res.style.display='block';
+
+  // Trouver le process
+  const pKey=Object.keys(PARTNER_PROCESS).find(k=>m.partner&&m.partner.toLowerCase().includes(k.toLowerCase()));
+  const p=pKey?PARTNER_PROCESS[pKey]:null;
+  const mailContent=p?p.mailGen(m):'';
+
+  const warnHtml = m.status!=='ok' ? `
+    <div class="warn-row">
+      <strong style="font-size:12px;color:#78350f">⚠️ ${m.status==='partial'?'Couverture partielle':'Aucune solution Filovent'}</strong>
+      <div style="font-size:12px;color:#92400e;margin-top:3px">
+        ${m.status==='partial'
+          ? 'Solution disponible via le loueur mais pas encore contractualisée côté Filovent.'
+          : 'Aucune solution identifiée. Contacter le loueur directement pour connaître ses options.'}
+      </div>
+    </div>` : '';
+
+  res.innerHTML=`
+    <div class="result-card">
+      <div class="result-hd">
+        <div>
+          <h3>${m.marina}</h3>
+          <div style="font-size:12px;color:rgba(255,255,255,.55);margin-top:3px">${m.region} · ${m.country}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="pill ${ccClass(m.country)}">${m.country}</span>
+          ${spStatus(m.status)}
+        </div>
+      </div>
+      ${warnHtml}
+      <div class="result-row">
+        <div class="result-lbl">Partenaire Filovent</div>
+        <div class="result-val"><strong>${m.partner||'Aucun'}</strong></div>
+      </div>
+      ${p ? `
+      <div class="result-row">
+        <div class="result-lbl">Process</div>
+        <div class="result-val" style="white-space:pre-line">${p.process}</div>
+      </div>
+      <div class="result-row">
+        <div class="result-lbl">Lien client</div>
+        <div class="result-val">
+          ${m.link&&m.link.startsWith('http')?`<a href="${m.link}" target="_blank">${m.link}</a>`:m.link||'—'}
+        </div>
+      </div>
+      <div class="result-row">
+        <div class="result-lbl">Délai</div>
+        <div class="result-val">${m.deadline}</div>
+      </div>
+      <div class="result-row">
+        <div class="result-lbl">Email client</div>
+        <div class="result-val">
+          <div class="mail-block">
+            <pre id="mail-content">${mailContent}</pre>
+            <button class="btn-copy" onclick="copyText('mail-content',this)">📋 Copier l'email</button>
+          </div>
+        </div>
+      </div>` : ''}
+    </div>`;
+  res.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function copyText(id,btn){
+  const el=document.getElementById(id);
+  if(!el) return;
+  navigator.clipboard.writeText(el.textContent).then(()=>{
+    btn.textContent='✅ Copié !';
+    setTimeout(()=>btn.textContent='📋 Copier l\'email',2000);
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// ALL BASES TABLE
+// ══════════════════════════════════════════════════════
+function renderAllBases(){
+  document.getElementById('all-bases-tbody').innerHTML=MARINAS.map((m,i)=>`
+    <tr style="background:${i%2===0?'#fff':'#faf9f6'};cursor:pointer"
+        onclick="document.getElementById('base-srch').value='${m.marina.replace(/'/g,"\\'")}';showMarinaResult(MARINAS[${i}])">
+      <td style="font-size:12px;font-weight:500">${m.marina}</td>
+      <td style="font-size:11px;color:var(--fi-text3)">${m.region}</td>
+      <td><span class="pill ${ccClass(m.country)}">${m.country}</span></td>
+      <td style="font-size:12px">${m.partner||'—'}</td>
+      <td style="font-size:11px;white-space:nowrap">${m.deadline}</td>
+      <td>${spStatus(m.status)}</td>
+    </tr>`).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// TODO
+// ══════════════════════════════════════════════════════
+function renderTodo(){
+  const item=t=>{
+    const done=todoState[t.id];
+    return `<div class="todo-item">
+      <div class="todo-chk ${done?'done':''}" onclick="toggleTodo('${t.id}')"></div>
+      <div class="todo-body">
+        <div class="todo-title ${done?'done':''}">${t.title}</div>
+        <div class="todo-sub">${t.sub}</div>
+        ${t.contact&&t.contact!=='—'?`<div class="todo-contact">✉️ ${t.contact}</div>`:''}
+      </div>
+    </div>`;
+  };
+  document.getElementById('todo-p1').innerHTML=TODO_P1.map(item).join('');
+  document.getElementById('todo-p2').innerHTML=TODO_P2.map(item).join('');
+  document.getElementById('todo-p3').innerHTML=TODO_P3.map(item).join('');
+  document.getElementById('todo-zones').innerHTML=TODO_ZONES.map(z=>`
+    <div class="todo-item">
+      <div style="width:8px;height:8px;border-radius:50%;background:var(--fi-red);flex-shrink:0;margin-top:4px"></div>
+      <div class="todo-body">
+        <div class="todo-title">${z.zone}</div>
+        <div class="todo-sub">${z.note}</div>
+      </div>
+    </div>`).join('');
+  const all=[...TODO_P1,...TODO_P2,...TODO_P3];
+  const done=all.filter(t=>todoState[t.id]).length;
+  document.getElementById('todo-prog').textContent=`${done}/${all.length} tâches complétées`;
+}
+function toggleTodo(id){todoState[id]=!todoState[id];renderTodo();}
+
+// ══════════════════════════════════════════════════════
+// STATS
+// ══════════════════════════════════════════════════════
+function buildStats(){
+  const all=[...rowsEN,...rowsFR];
+  if(!all.length) return;
+  const byCt={};
+  all.forEach(r=>{
+    const c=normC(r[C.country])||'Non renseigné';
+    if(!byCt[c]) byCt[c]={yes:0,no:0,en:0,fr:0};
+    isYes(r,r._lang)?byCt[c].yes++:byCt[c].no++;
+    r._lang==='fr'?byCt[c].fr++:byCt[c].en++;
+  });
+  const ctList=Object.entries(byCt).sort((a,b)=>(b[1].yes+b[1].no)-(a[1].yes+a[1].no));
+  const maxCt=Math.max(...ctList.map(([,v])=>v.yes+v.no));
+  document.getElementById('ch-ct').innerHTML=ctList.map(([c,v])=>{
+    const tot=v.yes+v.no;const pct=Math.round(tot/maxCt*100);
+    return `<div class="bar-row"><div class="bar-lbl"><span class="pill ${ccClass(c)}">${c}</span><strong>${tot}</strong></div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:var(--fi-ocean)"></div></div></div>`;
+  }).join('');
+  document.getElementById('ch-yn').innerHTML=ctList.slice(0,8).map(([c,v])=>{
+    const tot=v.yes+v.no;const p=Math.round(v.yes/tot*100);
+    return `<div class="bar-row"><div class="bar-lbl"><span class="pill ${ccClass(c)}">${c}</span><span style="font-size:11px;color:var(--fi-text3)">${v.yes} OUI · ${v.no} NON</span></div><div class="bar-track" style="background:#fee2e2"><div class="bar-fill" style="width:${p}%;background:var(--fi-teal)"></div></div></div>`;
+  }).join('');
+  document.getElementById('ch-lang').innerHTML=ctList.slice(0,8).map(([c,v])=>{
+    const tot=v.en+v.fr;const p=tot?Math.round(v.en/tot*100):0;
+    return `<div class="bar-row"><div class="bar-lbl"><span class="pill ${ccClass(c)}">${c}</span><span style="font-size:11px;color:var(--fi-text3)">${v.en} EN · ${v.fr} FR</span></div><div class="bar-track" style="display:flex"><div style="height:7px;width:${p}%;background:#1e3a8a;border-radius:4px 0 0 4px"></div><div style="height:7px;width:${100-p}%;background:#7c3aed;border-radius:0 4px 4px 0"></div></div></div>`;
+  }).join('');
+  const orgC={};
+  all.forEach(r=>{const o=(r[C.org]||'Non précisé').trim().substring(0,55);if(o&&o.length>3)orgC[o]=(orgC[o]||0)+1;});
+  const orgList=Object.entries(orgC).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const maxOrg=orgList[0]?.[1]||1;
+  document.getElementById('ch-org').innerHTML=orgList.map(([o,n])=>{const p=Math.round(n/maxOrg*100);return `<div class="bar-row"><div class="bar-lbl"><span style="font-size:11px;color:var(--fi-text2)">${o}</span><strong>${n}</strong></div><div class="bar-track"><div class="bar-fill" style="width:${p}%;background:var(--fi-amber)"></div></div></div>`;}).join('');
+  document.getElementById('stats-load').style.display='none';
+  document.getElementById('stats-content').style.display='block';
+}
+
+// ══════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  ['reponses','base','todo','stats'].forEach((p,i)=>{if(p===id)document.querySelectorAll('.nav-tab')[i].classList.add('active');});
+  if(id==='base') renderAllBases();
+}
+function setSrc(s,btn){activeSrc=s;activeCtry='all';document.querySelectorAll('.stab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');buildCtryFilters();applyFilters();}
+function setSvc(s,btn){activeSvc=s;document.querySelectorAll('.filter-bar .fbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');applyFilters();}
+function setCtry(c,btn){activeCtry=activeCtry===c?'all':c;document.querySelectorAll('#ctry-btns .fbtn').forEach(b=>b.classList.remove('active'));if(activeCtry!=='all')btn.classList.add('active');applyFilters();}
+
+// Init
+renderTodo();
+renderAllBases();
+loadAll();
+setInterval(()=>loadAll(),5*60*1000);
+</script>
+</body>
+</html>
